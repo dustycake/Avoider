@@ -4,6 +4,9 @@ using Core;
 
 public class Game : MonoBehaviour {
 
+	private static float MOVE_FORWARD_AMOUNT = 0.2f;
+
+
 	private static Game instance;
 
 	private Player _player;
@@ -14,6 +17,7 @@ public class Game : MonoBehaviour {
 	private float _enemySpawnInterval = 1.0f;
 	private int _score = 0;
 	private Vector3 _playerStartPosition;
+	private float _movedForwardPosition = 0.0f;
 
 	//states
 	private string _gameState = "intro";
@@ -33,7 +37,21 @@ public class Game : MonoBehaviour {
 		//grab the starting position so we can remember it for when it's time to reset.
 		_playerStartPosition = _player.transform.position;
 
+		//grab just the forwards position.
+		_movedForwardPosition = _player.transform.position.y;
+
 		Reset();
+	}
+
+	private void Reset()
+	{
+		_gameDifficulty = 0;
+		_gameState = "intro";
+		_gameTimer = 0;
+		_player.transform.position = _playerStartPosition;
+		_player.gameObject.SetActive(true);
+		_targetLane = "middle";
+		_movedForwardPosition = _playerStartPosition.y;
 	}
 	
 	// Update is called once per frame
@@ -42,7 +60,7 @@ public class Game : MonoBehaviour {
 		if (_gameState == "intro")
 		{
 			//if down, start the game
-			if (Input.GetKeyDown ("z"))
+			if (CheckForInput())
 			{
 				//we are now playing!
 				_gameState = "playing";
@@ -54,7 +72,7 @@ public class Game : MonoBehaviour {
 		else if (_gameState == "ended")
 		{
 			//if down, show the leaderboard
-			if (Input.GetKeyDown ("z"))
+			if (CheckForInput())
 			{
 				_gameState = "leaderboard";
 				InGameUI.Instance.SetLeaderboardState();
@@ -64,7 +82,7 @@ public class Game : MonoBehaviour {
 		else if (_gameState == "leaderboard")
 		{
 			//if down, start the game
-			if (Input.GetKeyDown ("z"))
+			if (CheckForInput())
 			{
 				//we are now playing!
 				_gameState = "intro";
@@ -79,21 +97,11 @@ public class Game : MonoBehaviour {
 			UpdateGame();
 
 			//if down, start the game
-			if (Input.GetKeyDown ("z"))
+			if (CheckForInput())
 			{
 				ChangeLanes ();
 			}
 		}
-	}
-
-	private void Reset()
-	{
-		_gameDifficulty = 0;
-		_gameState = "intro";
-		_gameTimer = 0;
-		_player.transform.position = _playerStartPosition;
-		_player.gameObject.SetActive(true);
-		_targetLane = "middle";
 	}
 
 	private void UpdateGame()
@@ -131,12 +139,12 @@ public class Game : MonoBehaviour {
 		if (_targetLane == "left")
 		{
 			newPosition.x = _spawner.GetSpawnLeft().position.x;
-			newPosition.y = _player.transform.position.y;
+			newPosition.y = _movedForwardPosition;
 		}
 		else if (_targetLane == "right")
 		{
 			newPosition.x = _spawner.GetSpawnRight().position.x;
-			newPosition.y = _player.transform.position.y;
+			newPosition.y = _movedForwardPosition;
 		}
 
 		Hashtable ht = new Hashtable();
@@ -153,6 +161,9 @@ public class Game : MonoBehaviour {
 	{
 		//bounce the player back.
 		iTween.Stop(_player.gameObject);
+		
+		//make it so that the player will move forwards a bit every time you score.
+		_movedForwardPosition += MOVE_FORWARD_AMOUNT;
 
 		//go back to the original lane.
 		ChangeLanes();
@@ -166,6 +177,18 @@ public class Game : MonoBehaviour {
 	{
 		_gameState = "ended";
 		InGameUI.Instance.SetGameOverState();
+	}
+
+	public bool CheckForInput()
+	{
+		if (Input.GetKeyDown ("z") || Input.GetTouch(0).phase == TouchPhase.Began)
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
 	}
 	
 	public static Game Instance {
