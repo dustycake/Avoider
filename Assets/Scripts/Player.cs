@@ -4,15 +4,16 @@ using Core;
 
 public class Player : MonoBehaviour {
 
-	ParticleSystem _particleSystem;
+	private ParticleSystem _particleSystem;
 
 	// Use this for initialization
 	void Start () 
 	{
+
+		//load particle systems.
 		ObjectManager.Instance.LoadObject("Particles/FX_EnemyDestroy");
 		ObjectManager.Instance.LoadObject("Particles/FX_CoinCollect");
 		ObjectManager.Instance.LoadObject("Particles/FX_PlayerDestroy");
-
 
 		//grab the particle trail and stop it.
 		_particleSystem = transform.FindChild("FX_PlayerTrail").GetComponent<ParticleSystem>();
@@ -20,7 +21,8 @@ public class Player : MonoBehaviour {
 	}
 	
 	// Update is called once per frame
-	void Update () {
+	void Update () 
+	{
 	
 	}
 
@@ -34,8 +36,10 @@ public class Player : MonoBehaviour {
 		_particleSystem.Stop();
 	}
 
+	//handle collision of objects.
 	private void OnTriggerEnter (Collider col) 
 	{
+		return;
 		if (col.gameObject.tag == "Enemy")
 		{
 			//find out what it collided with. If game over, then game over.

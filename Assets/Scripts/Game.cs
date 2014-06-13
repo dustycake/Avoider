@@ -3,21 +3,18 @@ using System.Collections;
 using Core;
 
 public class Game : MonoBehaviour {
-
-	private static float MOVE_FORWARD_AMOUNT = 0.2f;
-
+	
 	private static Game instance;
 
 	private Player _player;
 	private Spawner _spawner;
-	private float _laneChangeDuration = 0.35f;
-	private string _targetLane = "middle";
+	private float _laneChangeDuration = 0.5f;
+	private string _targetLane = "none";
 	private float _gameTimer = 0.0f;
-	private float _enemySpawnInterval = 1f;
+	private float _enemySpawnInterval = 2f;
 	private int _score = 0;
 	private int _levelScore = 0;
 	private Vector3 _playerStartPosition;
-	private float _movedForwardPosition = 0.0f;
 
 	//states
 	private string _gameState = "intro";
@@ -37,9 +34,6 @@ public class Game : MonoBehaviour {
 		//grab the starting position so we can remember it for when it's time to reset.
 		_playerStartPosition = _player.transform.position;
 
-		//grab just the forwards position.
-		_movedForwardPosition = _player.transform.position.y;
-
 		Reset();
 	}
 
@@ -50,8 +44,7 @@ public class Game : MonoBehaviour {
 		_gameTimer = 0;
 		_player.transform.position = _playerStartPosition;
 		_player.gameObject.SetActive(true);
-		_targetLane = "middle";
-		_movedForwardPosition = _playerStartPosition.y;
+		_targetLane = "none";
 	}
 	
 	// Update is called once per frame
@@ -60,7 +53,7 @@ public class Game : MonoBehaviour {
 		if (_gameState == "intro")
 		{
 			//if down, start the game
-			if (CheckForInput())
+			if (CheckForTap())
 			{
 				//we are now playing!
 				_gameState = "playing";
@@ -72,7 +65,7 @@ public class Game : MonoBehaviour {
 		else if (_gameState == "ended")
 		{
 			//if down, show the leaderboard
-			if (CheckForInput())
+			if (CheckForTapRelease())
 			{
 				_gameState = "leaderboard";
 				InGameUI.Instance.SetLeaderboardState();
@@ -82,7 +75,7 @@ public class Game : MonoBehaviour {
 		else if (_gameState == "leaderboard")
 		{
 			//if down, start the game
-			if (CheckForInput())
+			if (CheckForTap())
 			{
 				//we are now playing!
 				_gameState = "intro";
@@ -95,12 +88,7 @@ public class Game : MonoBehaviour {
 		{
 
 			UpdateGame();
-
-			//if down, start the game
-			if (CheckForInput())
-			{
-				ChangeLanes ();
-			}
+			HandleIngameInput();
 		}
 	}
 
@@ -117,6 +105,42 @@ public class Game : MonoBehaviour {
 			_spawner.SpawnEnemy();
 		}
 	}
+
+	void HandleIngameInput()
+	{
+
+		if (Input.GetKeyDown(KeyCode.Z))
+		{
+			Debug.Log ("Down");
+			//the touch has began. Go to the middle lane, but specify which direction youre facing.
+			if (_targetLane == "left")
+			{
+				_targetLane = "middleRight";
+			}
+			else if (_targetLane == "right")
+			{
+				_targetLane = "middleLeft";
+			}
+
+			ChangeLanes();
+		}
+		else if (Input.GetKeyUp(KeyCode.Z))
+		{
+			Debug.Log ("Up");
+			if (_targetLane == "middleLeft")
+			{
+				_targetLane = "left";
+			}
+			else if (_targetLane == "middleRight")
+			{
+				_targetLane = "right";
+			}
+
+			ChangeLanes();
+		}
+
+
+	}
 	
 	void ChangeLanes()
 	{
@@ -124,18 +148,8 @@ public class Game : MonoBehaviour {
 		//The tween will turn it off once it's done moving.
 		_player.StartParticleSystem();
 		
-		switch (_targetLane)
-		{
-		case "middle":
-		case "left":
-			_targetLane = "right";
-			break;
-		case "right":
-			_targetLane = "left";
-			break;
-		}
-		
 		Vector3 newPosition = new Vector3();
+		iTween.EaseType easeType = iTween.EaseType.easeOutExpo;
 		if (_targetLane == "left")
 		{
 			newPosition.x = _spawner.GetSpawnLeft().position.x;
@@ -144,18 +158,39 @@ public class Game : MonoBehaviour {
 		{
 			newPosition.x = _spawner.GetSpawnRight().position.x;
 		}
+		else if (_targetLane == "middleLeft" || _targetLane == "middleRight")
+		{
+			newPosition.x = _spawner.GetSpawnMiddle().position.x;
+			easeType = iTween.EaseType.easeOutExpo;
+		}
+		else if (_targetLane == "none")
+		{
+			_targetLane = "right";
+			newPosition.x = _spawner.GetSpawnRight().position.x;
+		}
 
-		//set the y position
-		newPosition.y = _movedForwardPosition;
-		
+		//the y position should stay the same.
+		newPosition.y = _playerStartPosition.y;
+
+
+
+		//stop all tweens
+		iTween.Stop(_player.gameObject);
+
 		Hashtable ht = new Hashtable();
 		ht.Add("position", newPosition);
 		ht.Add ("time", _laneChangeDuration);
-		ht.Add ("easeType", iTween.EaseType.easeOutQuart);
-		ht.Add ("oncomplete", "StopParticleSystem");
-		ht.Add ("oncompletetarget", _player.gameObject);
+		ht.Add ("easeType", easeType);
+		ht.Add ("oncomplete", "LaneChangeComplete");
+		//ht.Add ("oncompletetarget", _player.gameObject);
 		iTween.MoveTo(_player.gameObject, ht);
 
+	}
+
+	public void LaneChangeComplete()
+	{
+		//stop the particle system.
+		_player.StopParticleSystem();
 	}
 
 	public void HandleEnemyDestroy()
@@ -173,11 +208,6 @@ public class Game : MonoBehaviour {
 		if (_levelScore >= 100)
 		{
 			LevelUp();
-		}
-		else
-		{
-			//make it so that the player will move forwards a bit every time you score.
-			_movedForwardPosition += MOVE_FORWARD_AMOUNT;
 		}
 
 		//go back to the original lane.
@@ -209,7 +239,6 @@ public class Game : MonoBehaviour {
 	public void LevelUp()
 	{
 		_levelScore = 0;
-		_movedForwardPosition = _playerStartPosition.y;
 
 		InGameUI.Instance.ShowSweetenerText();
 	}
@@ -220,7 +249,7 @@ public class Game : MonoBehaviour {
 		InGameUI.Instance.SetGameOverState();
 	}
 
-	public bool CheckForInput()
+	public bool CheckForTap()
 	{
 		if (Input.GetKeyDown ("z") || (Input.touches.Length > 0 && Input.GetTouch(0).phase == TouchPhase.Began))
 		{
@@ -231,6 +260,19 @@ public class Game : MonoBehaviour {
 			return false;
 		}
 	}
+
+	public bool CheckForTapRelease()
+	{
+		if (Input.GetKeyUp ("z") || (Input.touches.Length > 0 && Input.GetTouch(0).phase == TouchPhase.Ended))
+		{
+			return true;
+		}
+		else
+		{
+			return false;
+		}
+	}
+
 	
 	public static Game Instance {
 		get 

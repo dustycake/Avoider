@@ -121,4 +121,9 @@ public class Spawner : MonoBehaviour {
 	{
 		return _spawnRight;
 	}
+
+	public Transform GetSpawnMiddle()
+	{
+		return _spawnMiddle;
+	}
 }
