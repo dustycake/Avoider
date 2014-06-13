@@ -172,7 +172,13 @@
      <Compile Include="Assets\NGUI\Scripts\UI\UITexture.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UITooltip.cs" />
      <Compile Include="Assets\NGUI\Scripts\UI\UIViewport.cs" />
+     <Compile Include="Assets\Scripts\CoinPatch.cs" />
      <Compile Include="Assets\Scripts\Enemy.cs" />
+     <Compile Include="Assets\Scripts\EnemyBlock.cs" />
+     <Compile Include="Assets\Scripts\EnemyBlockSmall.cs" />
+     <Compile Include="Assets\Scripts\EnemyHorizontal.cs" />
+     <Compile Include="Assets\Scripts\EnemyLarge.cs" />
+     <Compile Include="Assets\Scripts\EnemySmall.cs" />
      <Compile Include="Assets\Scripts\Game.cs" />
      <Compile Include="Assets\Scripts\InGameUI.cs" />
      <Compile Include="Assets\Scripts\Managers\ObjectManager.cs" />

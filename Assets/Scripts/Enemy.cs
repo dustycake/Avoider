@@ -8,11 +8,11 @@ public class Enemy : MonoBehaviour {
 	// Use this for initialization
 	void Start () 
 	{
-	
+		gameObject.SetActive(true);
 	}
 	
 	// Update is called once per frame
-	void Update () 
+	protected virtual void UpdateEnemy () 
 	{
 		Vector3 newPosition = new Vector3(transform.position.x, transform.position.y - _speed);
 		transform.position = newPosition;
@@ -26,9 +26,9 @@ public class Enemy : MonoBehaviour {
 		}
 	}
 
-	public void SetSpeed(int speed)
+	public void SetSpeed()
 	{
-		_speed = speed;
+		_speed = 0.1f;
 	}
 
 
