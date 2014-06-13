@@ -41,6 +41,7 @@ public class InGameUI : MonoBehaviour {
 		_instructions.gameObject.SetActive(false);
 		_gameOver.gameObject.SetActive(false);
 		_leaderboard.gameObject.SetActive(false);
+		_sweetenerText.gameObject.SetActive(false);
 	}
 
 	public void SetGameReadyState()
@@ -49,6 +50,7 @@ public class InGameUI : MonoBehaviour {
 		_instructions.gameObject.SetActive(true);
 		_gameOver.gameObject.SetActive(false);
 		_leaderboard.gameObject.SetActive(false);
+		_sweetenerText.gameObject.SetActive(false);
 	}
 
 	public void SetGameOverState()
@@ -57,6 +59,7 @@ public class InGameUI : MonoBehaviour {
 		_instructions.gameObject.SetActive(false);
 		_gameOver.gameObject.SetActive(true);
 		_leaderboard.gameObject.SetActive(false);
+		_sweetenerText.gameObject.SetActive(false);
 	}
 
 	public void SetLeaderboardState()
@@ -65,6 +68,8 @@ public class InGameUI : MonoBehaviour {
 		_instructions.gameObject.SetActive(false);
 		_gameOver.gameObject.SetActive(false);
 		_leaderboard.gameObject.SetActive(true);
+		_sweetenerText.gameObject.SetActive(false);
+
 	}
 
 	public void UpdateScore(int score)
@@ -77,9 +82,11 @@ public class InGameUI : MonoBehaviour {
 		_sweetenerText.gameObject.SetActive(true);
 
 		TweenAlpha tweenAlpha = _sweetenerText.gameObject.GetComponent<TweenAlpha>();
+		tweenAlpha.ResetToBeginning();
 		tweenAlpha.PlayForward();
 
 		TweenScale tweenScale = _sweetenerText.gameObject.GetComponent<TweenScale>();
+		tweenScale.ResetToBeginning();
 		tweenScale.PlayForward();
 	}
 

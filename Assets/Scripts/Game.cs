@@ -13,7 +13,7 @@ public class Game : MonoBehaviour {
 	private float _laneChangeDuration = 0.35f;
 	private string _targetLane = "middle";
 	private float _gameTimer = 0.0f;
-	private float _enemySpawnInterval = 0.75f;
+	private float _enemySpawnInterval = 1f;
 	private int _score = 0;
 	private int _levelScore = 0;
 	private Vector3 _playerStartPosition;
