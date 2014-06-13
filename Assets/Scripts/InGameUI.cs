@@ -9,6 +9,7 @@ public class InGameUI : MonoBehaviour {
 	private UILabel _score;
 	private UILabel _gameOver;
 	private UIWidget _leaderboard;
+	private UILabel _sweetenerText;
 
 
 	void Awake()
@@ -22,6 +23,7 @@ public class InGameUI : MonoBehaviour {
 		_instructions = transform.FindChild("Instructions").GetComponent<UILabel>();
 		_gameOver = transform.FindChild("GameOver").GetComponent<UILabel>();
 		_leaderboard = transform.FindChild("Leaderboard").GetComponent<UIWidget>();
+		_sweetenerText = transform.FindChild("SweetenerText").GetComponent<UILabel>();
 
 		//make the UI look like the game is ready.
 		SetGameReadyState();
@@ -68,6 +70,17 @@ public class InGameUI : MonoBehaviour {
 	public void UpdateScore(int score)
 	{
 		_score.text = score.ToString();
+	}
+
+	public void ShowSweetenerText()
+	{
+		_sweetenerText.gameObject.SetActive(true);
+
+		TweenAlpha tweenAlpha = _sweetenerText.gameObject.GetComponent<TweenAlpha>();
+		tweenAlpha.PlayForward();
+
+		TweenScale tweenScale = _sweetenerText.gameObject.GetComponent<TweenScale>();
+		tweenScale.PlayForward();
 	}
 
 	
