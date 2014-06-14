@@ -12,6 +12,8 @@ public class Spawner : MonoBehaviour {
 	void Start () 
 	{
 		ObjectManager.Instance.LoadObject("Prefabs/EnemyLarge");
+		ObjectManager.Instance.LoadObject("Prefabs/EnemyLarge2");
+		ObjectManager.Instance.LoadObject("Prefabs/EnemyLarge3");
 		ObjectManager.Instance.LoadObject("Prefabs/EnemySmall");
 		ObjectManager.Instance.LoadObject("Prefabs/EnemyBlock");
 		ObjectManager.Instance.LoadObject("Prefabs/EnemyBlockSmall");
@@ -33,21 +35,41 @@ public class Spawner : MonoBehaviour {
 
 	public void SpawnEnemy()
 	{
-//		switch (Game.Instance.GameDifficulty)
-//		{
-//		case 1: SpawnEasy();
-//			break;
-//		case 2: SpawnMedium();
-//			break;
-//		default: SpawnHard();
-//			break;
-//		}
-
-		SpawnEasy ();
-
+		switch (Game.Instance.GameDifficulty)
+		{
+		case 1: SpawnEasy();
+			break;
+		case 2: SpawnMedium();
+			break;
+		case 3: SpawnHard();
+			break;
+		case 4: SpawnReallyHard();
+			break;
+		default:
+			SpawnInsane();
+			break;
+		}
 	}
 
 	private void SpawnEasy()
+	{
+		//create a random enemy.
+		Enemy enemy = GetEnemy(Random.Range (0, 3));
+		
+		enemy.gameObject.transform.position = GetRandomSpawner().position;
+		enemy.gameObject.transform.parent = transform;
+	}
+
+	private void SpawnMedium()
+	{
+		//create a random enemy.
+		Enemy enemy = GetEnemy(Random.Range (0, 4));
+		
+		enemy.gameObject.transform.position = GetRandomSpawner().position;
+		enemy.gameObject.transform.parent = transform;
+	}
+
+	private void SpawnHard()
 	{
 		//create a random enemy.
 		Enemy enemy = GetEnemy(Random.Range (0, 5));
@@ -56,14 +78,22 @@ public class Spawner : MonoBehaviour {
 		enemy.gameObject.transform.parent = transform;
 	}
 
-	private void SpawnMedium()
+	private void SpawnReallyHard()
 	{
-
+		//create a random enemy.
+		Enemy enemy = GetEnemy(Random.Range (0, 6));
+		
+		enemy.gameObject.transform.position = GetRandomSpawner().position;
+		enemy.gameObject.transform.parent = transform;
 	}
 
-	private void SpawnHard()
+	private void SpawnInsane()
 	{
-
+		//create a random enemy.
+		Enemy enemy = GetEnemy(Random.Range (0, 7));
+		
+		enemy.gameObject.transform.position = GetRandomSpawner().position;
+		enemy.gameObject.transform.parent = transform;
 	}
 
 	public Enemy GetEnemy(int enemyType)
@@ -72,19 +102,25 @@ public class Spawner : MonoBehaviour {
 		switch (enemyType)
 		{
 		case 0:
-			enemy = ObjectManager.Instance.GetLoadedGameObject("Prefabs/EnemyLarge").GetComponent<EnemyLarge>();
-			break;
-		case 1:
-			enemy = ObjectManager.Instance.GetLoadedGameObject("Prefabs/EnemySmall").GetComponent<EnemySmall>();
-			break;
-		case 2:
-			enemy = ObjectManager.Instance.GetLoadedGameObject("Prefabs/EnemyBlock").GetComponent<EnemyBlock>();
-			break;
-		case 3:
 			enemy = ObjectManager.Instance.GetLoadedGameObject("Prefabs/CoinPatch").GetComponent<CoinPatch>();
 			break;
-		default:
+		case 1:
 			enemy = ObjectManager.Instance.GetLoadedGameObject("Prefabs/EnemyBlockSmall").GetComponent<EnemyBlockSmall>();
+			break;
+		case 2:
+			enemy = ObjectManager.Instance.GetLoadedGameObject("Prefabs/EnemySmall").GetComponent<EnemySmall>();
+			break;
+		case 3:
+			enemy = ObjectManager.Instance.GetLoadedGameObject("Prefabs/EnemyBlock").GetComponent<EnemyBlock>();
+			break;
+		case 4:
+			enemy = ObjectManager.Instance.GetLoadedGameObject("Prefabs/EnemyLarge").GetComponent<EnemyLarge>();
+			break;
+		case 5:
+			enemy = ObjectManager.Instance.GetLoadedGameObject("Prefabs/EnemyLarge2").GetComponent<EnemyLarge>();
+			break;
+		default:
+			enemy = ObjectManager.Instance.GetLoadedGameObject("Prefabs/EnemyLarge3").GetComponent<EnemyLarge>();
 			break;
 		}
 
@@ -93,19 +129,21 @@ public class Spawner : MonoBehaviour {
 
 	public Transform GetRandomSpawner()
 	{
-		//flip left or right side randomly
+		//flip left or right or middle side randomly
 		int lane = (Random.Range (0, 3));
+
+		//choose a random transform to spawn from.
 		Transform flipTrans;
 		switch (lane) 
 		{
 			case 0:
-				flipTrans = _spawnMiddle;
+			    flipTrans = _spawnRight;
 				break;
 			case 1:
 				flipTrans = _spawnLeft;
 				break;
 			default:
-				flipTrans = _spawnRight;
+				flipTrans = _spawnMiddle;
 			    break;
 		}
 

@@ -184,6 +184,7 @@
      <Compile Include="Assets\Scripts\Managers\ObjectManager.cs" />
      <Compile Include="Assets\Scripts\Misc\PoolableObject.cs" />
      <Compile Include="Assets\Scripts\Player.cs" />
+     <Compile Include="Assets\Scripts\RushMeter.cs" />
      <Compile Include="Assets\Scripts\Spawner.cs" />
      <Compile Include="Assets\Scripts\StateMachine\State.cs" />
      <Compile Include="Assets\Scripts\StateMachine\StateMachine.cs" />

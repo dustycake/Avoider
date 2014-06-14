@@ -4,7 +4,11 @@ using Core;
 
 public class Game : MonoBehaviour {
 
-	private static float MOVE_FORWARD_AMOUNT = 0.2f;
+	private static float ENEMY_SPAWN_EASY = 1f;
+	private static float ENEMY_SPAWN_MEDIUM = 0.85f;
+	private static float ENEMY_SPAWN_HARD = 0.7f;
+	private static float ENEMY_SPAWN_REALLYHARD = 0.65f;
+	private static float ENEMY_SPAWN_INSANE = 0.65f;
 
 	private static Game instance;
 
@@ -13,13 +17,14 @@ public class Game : MonoBehaviour {
 	private float _laneChangeDuration = 0.35f;
 	private string _targetLane = "middle";
 	private float _gameTimer = 0.0f;
-	private float _enemySpawnInterval = 1f;
+
 	private int _score = 0;
 	private int _levelScore = 0;
 	private Vector3 _playerStartPosition;
-	private float _movedForwardPosition = 0.0f;
 
-	//states
+	private float _enemySpeed = 0.1f;
+	private float _rushCooldownSpeed = 0.005f;
+
 	private string _gameState = "intro";
 	private int _gameDifficulty = 1;
 
@@ -30,15 +35,13 @@ public class Game : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
+		Application.targetFrameRate = 60;
 
 		_player = transform.FindChild ("Player").GetComponent<Player>();
 		_spawner = transform.FindChild ("Spawner").GetComponent<Spawner>();
 
 		//grab the starting position so we can remember it for when it's time to reset.
 		_playerStartPosition = _player.transform.position;
-
-		//grab just the forwards position.
-		_movedForwardPosition = _player.transform.position.y;
 
 		Reset();
 	}
@@ -51,7 +54,6 @@ public class Game : MonoBehaviour {
 		_player.transform.position = _playerStartPosition;
 		_player.gameObject.SetActive(true);
 		_targetLane = "middle";
-		_movedForwardPosition = _playerStartPosition.y;
 	}
 	
 	// Update is called once per frame
@@ -109,10 +111,10 @@ public class Game : MonoBehaviour {
 		//handle spawning of enemies
 		_gameTimer += Time.deltaTime;
 
-		if (_gameTimer >= _enemySpawnInterval)
+		if (_gameTimer >= GetEnemySpawnInterval())
 		{
 			//catch overflow
-			_gameTimer -= _enemySpawnInterval;
+			_gameTimer -= GetEnemySpawnInterval();
 			
 			_spawner.SpawnEnemy();
 		}
@@ -145,9 +147,8 @@ public class Game : MonoBehaviour {
 			newPosition.x = _spawner.GetSpawnRight().position.x;
 		}
 
-		//set the y position
-		newPosition.y = _movedForwardPosition;
-		
+		newPosition.y = _player.transform.position.y;
+
 		Hashtable ht = new Hashtable();
 		ht.Add("position", newPosition);
 		ht.Add ("time", _laneChangeDuration);
@@ -164,25 +165,10 @@ public class Game : MonoBehaviour {
 		iTween.Stop(_player.gameObject);
 		
 		//update the score
-		_score += 5;
-		_levelScore += 5;
+		IncreaseScore(5);
 
-		//see if it's time to level up
-		//CheckForLevelUp();
-
-		if (_levelScore >= 100)
-		{
-			LevelUp();
-		}
-		else
-		{
-			//make it so that the player will move forwards a bit every time you score.
-			_movedForwardPosition += MOVE_FORWARD_AMOUNT;
-		}
-
-		//go back to the original lane.
+		//bounce back to the original lane.
 		ChangeLanes();
-
 
 		InGameUI.Instance.UpdateScore(_score);
 
@@ -191,25 +177,35 @@ public class Game : MonoBehaviour {
 	public void HandleCoinCollect()
 	{
 		//update the score
-		_score += 1;
-		_levelScore += 1;
-
-		//see if it's time to level up;
-		//CheckForLevelUp();
-
-		if (_levelScore >= 100)
-		{
-			LevelUp();
-		}
+		IncreaseScore(1);
 		
 		InGameUI.Instance.UpdateScore(_score);
 
 	}
 
+	public void IncreaseScore(int val)
+	{
+		_score += val;
+		_levelScore += val;
+
+		//check for level up
+		if (_levelScore >= 100)
+		{
+			LevelUp();
+		}
+
+		RushMeter.Instance.IncreaseRushAmount(val);
+	}
+
 	public void LevelUp()
 	{
 		_levelScore = 0;
-		_movedForwardPosition = _playerStartPosition.y;
+		if (_gameDifficulty < 5) 
+		{ 
+			_gameDifficulty++;
+		}
+
+		//change camera color
 
 		InGameUI.Instance.ShowSweetenerText();
 	}
@@ -218,6 +214,30 @@ public class Game : MonoBehaviour {
 	{
 		_gameState = "ended";
 		InGameUI.Instance.SetGameOverState();
+	}
+
+	public float GetEnemySpawnInterval()
+	{
+		float rVal;
+		switch(_gameDifficulty)
+		{
+		case 1:
+			rVal = ENEMY_SPAWN_EASY;
+			break;
+		case 2:
+			rVal = ENEMY_SPAWN_MEDIUM;
+			break;
+		case 3:
+			rVal = ENEMY_SPAWN_HARD;
+			break;
+		case 4:
+			rVal = ENEMY_SPAWN_REALLYHARD;
+			break;
+		default:
+			rVal = ENEMY_SPAWN_INSANE;
+			break;
+		}
+		return rVal;
 	}
 
 	public bool CheckForInput()
@@ -231,6 +251,13 @@ public class Game : MonoBehaviour {
 			return false;
 		}
 	}
+
+	public void BeginRushMode()
+	{
+		Debug.Log ("Rush mode!");
+	}
+
+
 	
 	public static Game Instance {
 		get 
@@ -249,6 +276,18 @@ public class Game : MonoBehaviour {
 	public int GameDifficulty {
 		get {
 			return _gameDifficulty;
+		}
+	}
+
+	public float EnemySpeed {
+		get {
+			return _enemySpeed;
+		}
+	}
+
+	public float RushCooldownSpeed {
+		get {
+			return _rushCooldownSpeed;
 		}
 	}
 }

@@ -10,6 +10,7 @@ public class InGameUI : MonoBehaviour {
 	private UILabel _gameOver;
 	private UIWidget _leaderboard;
 	private UILabel _sweetenerText;
+	private RushMeter _rushMeter;
 
 
 	void Awake()
@@ -24,6 +25,7 @@ public class InGameUI : MonoBehaviour {
 		_gameOver = transform.FindChild("GameOver").GetComponent<UILabel>();
 		_leaderboard = transform.FindChild("Leaderboard").GetComponent<UIWidget>();
 		_sweetenerText = transform.FindChild("SweetenerText").GetComponent<UILabel>();
+		_rushMeter = transform.FindChild("RushMeter").GetComponent<RushMeter>();
 
 		//make the UI look like the game is ready.
 		SetGameReadyState();
@@ -69,7 +71,6 @@ public class InGameUI : MonoBehaviour {
 		_gameOver.gameObject.SetActive(false);
 		_leaderboard.gameObject.SetActive(true);
 		_sweetenerText.gameObject.SetActive(false);
-
 	}
 
 	public void UpdateScore(int score)
@@ -79,20 +80,21 @@ public class InGameUI : MonoBehaviour {
 
 	public void ShowSweetenerText()
 	{
-		_sweetenerText.gameObject.SetActive(true);
-
-		TweenAlpha tweenAlpha = _sweetenerText.gameObject.GetComponent<TweenAlpha>();
-		tweenAlpha.ResetToBeginning();
-		tweenAlpha.PlayForward();
-
-		TweenScale tweenScale = _sweetenerText.gameObject.GetComponent<TweenScale>();
-		tweenScale.ResetToBeginning();
-		tweenScale.PlayForward();
+//		_sweetenerText.gameObject.SetActive(true);
+//
+//		TweenAlpha tweenAlpha = _sweetenerText.gameObject.GetComponent<TweenAlpha>();
+//		tweenAlpha.ResetToBeginning();
+//		tweenAlpha.PlayForward();
+//
+//		TweenScale tweenScale = _sweetenerText.gameObject.GetComponent<TweenScale>();
+//		tweenScale.ResetToBeginning();
+//		tweenScale.PlayForward();
 	}
 
 	
 	// Update is called once per frame
-	void Update () {
+	void Update () 
+	{
 	
 	}
 

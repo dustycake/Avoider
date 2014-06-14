@@ -3,7 +3,6 @@ using System.Collections;
 
 public class Enemy : MonoBehaviour {
 
-	public float _speed = 0.1f;
 
 	// Use this for initialization
 	void Start () 
@@ -14,7 +13,7 @@ public class Enemy : MonoBehaviour {
 	// Update is called once per frame
 	protected virtual void UpdateEnemy () 
 	{
-		Vector3 newPosition = new Vector3(transform.position.x, transform.position.y - _speed);
+		Vector3 newPosition = new Vector3(transform.position.x, transform.position.y - Game.Instance.EnemySpeed);
 		transform.position = newPosition;
 
 		if (transform.position.y >= (Screen.height * 0.5f) + 1.0f )
@@ -25,11 +24,7 @@ public class Enemy : MonoBehaviour {
 			Debug.Log("Destroyed");
 		}
 	}
-
-	public void SetSpeed()
-	{
-		_speed = 0.1f;
-	}
+	
 
 
 }
